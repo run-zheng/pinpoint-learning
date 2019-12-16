@@ -1,0 +1,111 @@
+{
+  "title": "Pinpoint Agent源码分析",
+  "author": "zheng run",
+  "descriptor": "Pinpoint Agent源码分析",
+  "language": "zh-hans",
+  "//styles": "自定义样式css地址，website指定website的css文件",
+  "structur": "自定义Readme, Summary, Glossary, Languages对应的文件名",
+  "links": {
+    "//": "左边导航栏添加链接信息, 效果不好不推荐",
+    "sidebar": {
+      "github": "https://github.com/run-zheng/pinpoint-learning/pinpoint1.6.3-agent-src-analysis"
+    }
+  },
+  "plugin-comments": {
+    "//hide-element": "隐藏元素插件, .gitbook-link->隐藏默认的gitbook左侧提示:Published with GitBook",
+    "//back-to-top-button": "显示回到顶部",
+    "//chapter-fold": "左侧导航目录折叠效果",
+    "//code": "代码支持复制，代码块显示复制按钮，点击一键复制",
+    "//splitter": "侧边栏宽度可调节",
+    "//search-pro": "高级搜索，支持中英文，该插件需移除原有-lunr  -search使用",
+    "//insert-logo": "插入logo, pluginsConfig: url->logon地址，style->css样式",
+    "//custom-favicon": "定制标题栏图标",
+    "//pageview-count": "阅读量统计",
+    "//tbfed-pagefooter": "页面添加页脚，标注版权信息和文章时间，pluginsConfig: copyright->版权信息,modify_label->修改时间,modify_format->时间格式",
+    "//popup": "弹出大图，点击可以在新窗口展示图片",
+    "//sharing-plus": "分享当前页面，该插件需移除原-sharing，支持更多分享方式，也可以关闭指定分享方式",
+    "//github": "github插件,配置github仓库地址",
+    "//expandable-chapters-small": "点击目录前的箭头，左侧章节目录可折叠，chapter-fold更好用",
+    "//anchors": "标题带有 github 样式的锚点",
+    "//github-buttons": "显示 github 仓库的star和fork按钮",
+    "//donate": "Gitbook 捐赠打赏插件",
+    "//donate-pluginsConfig": {
+        "alipay": "./source/images/donate.png",
+        "title": "",
+        "button": "赞赏",
+        "alipayText": " "
+    },
+    "//anchor-navigation-ex": "插件锚导航-EX",
+    "//anchor-navigation-ex-pluginsConfig": {
+      "showLevel": false
+    },
+    "//favicon": "图标配置",
+    "//favicon-pluginsConfig": {
+        "shortcut": "./source/images/favicon.jpg",
+        "bookmark": "./source/images/favicon.jpg",
+        "appleTouch": "./source/images/apple-touch-icon.jpg",
+        "appleTouchMore": {
+          "120x120": "./source/images/apple-touch-icon.jpg",
+          "180x180": "./source/images/apple-touch-icon.jpg"
+        }
+    },
+    "//uml": "plantuml的gitbook插件"
+  },
+  "plugins": [
+    "hide-element",
+    "chapter-fold",
+    "code",
+    "splitter",
+    "-lunr",
+    "-search",
+    "search-pro",
+    "insert-logo",
+    "custom-favicon",
+    "pageview-count",
+    "tbfed-pagefooter",
+    "popup",
+    "-sharing",
+    "sharing-plus",
+    "github",
+    "github-buttons",
+    "anchor-navigation-ex",
+    "uml"
+  ],
+  "pluginsConfig": {
+    "//": "配置插件的属性",
+    "hide-element": {
+      "elements": [".gitbook-link"]
+    },
+    "insert-logo": {
+      "url": "images/pinpoint-logo.png"
+    },
+    "favicon": "ico/favicon.ico",
+    "tbfed-pagefooter": {
+      "copyright": "Copyright &copy run-zheng.github.io",
+      "modify_label": "修改时间",
+      "modify_format": "YYYY-MM-DD"
+    },
+    "sharing": {
+      "douban": true,
+      "weibo": true,
+      "all": [
+        "douban", "facebook", "google", "instapaper",
+        "linkedin", "twitter", "weibo", "messenger",
+        "qq", "qzone", "viber", "whatsapp"
+      ]
+    },
+    "github": {
+      "url": "https://github.com/run-zheng/pinpoint-learning/pinpoint1.6.3-agent-src-analysis"
+    },
+    "github-buttons": {
+      "buttons": [{
+        "user": "run-zheng",
+        "repo": "pinpoint-learning",
+        "type": "star",
+        "size": "small",
+        "count": true
+      }
+      ]
+    }
+  }
+}
