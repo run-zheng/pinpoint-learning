@@ -49,7 +49,9 @@
           "180x180": "./source/images/apple-touch-icon.jpg"
         }
     },
-    "//uml": "plantuml的gitbook插件"
+    "//uml": "plantuml的gitbook插件",
+    "//plantuml": "plantuml的gitbook插件",
+    "//puml": "plantuml的gitbook插件"
   },
   "plugins": [
     "hide-element",
@@ -106,6 +108,10 @@
         "count": true
       }
       ]
+    },
+    "uml": {
+      "format": "svg",
+      "-charset": "UTF-8"
     }
   }
 }
