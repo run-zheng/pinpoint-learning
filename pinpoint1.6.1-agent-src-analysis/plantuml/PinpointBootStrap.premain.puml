@@ -1,0 +1,16 @@
+@startuml
+
+PinpointBootStrap -> PinpointBootStrap: premain(String agentArgs, Instrumentation instrumentation)
+PinpointBootStrap -> AgentDirBaseClassPathResolver: new AgentDirBaseClassPathResolver()\nverify()
+AgentDirBaseClassPathResolver -->> PinpointBootStrap
+
+PinpointBootStrap -> PinpointBootStrap: appendToBootstrapClassLoader()
+loop agent jar list
+    PinpointBootStrap -> Instrumentation: appendToBootstrapClassLoaderSearch
+    Instrumentation -->> PinpointBootStrap
+end
+
+PinpointBootStrap -> PinpointStarter: new PinpointStarter()\nstart()
+PinpointStarter -->> PinpointBootStrap
+
+@enduml

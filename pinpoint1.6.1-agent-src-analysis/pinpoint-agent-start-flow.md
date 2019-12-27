@@ -63,25 +63,7 @@ Build-Jdk: 1.8.0_221
 
 PinpointBootStrap的premain方法是入口点。 在premain中，通过AgentDirBaseClassPathResolver解析java.class.path系统参数，得到pinpoint agent目录及各个jar包的路径。包括`pinpoint-bootstrap-x.x.x(-SNAPSHOT).jar、pinpoint-commons-x.x.x(-SNAPSHOT).jar、pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar、pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar、pinpoint-bootstrap-core-optional-x.x.x(-SNAPSHOT).jar`这5个jar包。 然后将这些jar包添加到Instrument的启动类加载器（Boostrap Class Loader）的类搜索路径中。然后调用PinpointStarter的start完成启动。 
 
-
-```puml  
-@startuml
-
-PinpointBootStrap -> PinpointBootStrap: premain(String agentArgs, Instrumentation instrumentation)
-PinpointBootStrap -> AgentDirBaseClassPathResolver: new AgentDirBaseClassPathResolver()\nverify()
-AgentDirBaseClassPathResolver -->> PinpointBootStrap
-
-PinpointBootStrap -> PinpointBootStrap: appendToBootstrapClassLoader()
-loop agent jar list
-    PinpointBootStrap -> Instrumentation: appendToBootstrapClassLoaderSearch
-    Instrumentation -->> PinpointBootStrap
-end
-
-PinpointBootStrap -> PinpointStarter: new PinpointStarter()\nstart()
-PinpointStarter -->> PinpointBootStrap
-
-@enduml
-```
+![PinpointBootStrap.premain](https://run-zheng.github.io/PictureBed/pinpoint1.6.3-agent-src-analysis/PinpointBootStrap.premain.svg)
 
 ####  PinpointStarter的starter流程
 
@@ -94,68 +76,8 @@ PinpointStarter -->> PinpointBootStrap
 7. 完成`DefaultAgent`对象创建后，调用`start()`方法，这里通过`AgentInfoSender`启动agent信息定时上报任务，默认3秒一次；通过`DefaultAgentStatMonitor`启动agent状态信息(JVM/内存/CPU等)上报服务，默认5秒一次。
 8. 调用`registerShutdownHook`方法注册一个shutdown的钩子线程，用来关掉各种发送数据的线程和链接。
 
-```puml
-@startuml 
-activate PinpointStarter
-PinpointStarter -> PinpointStarter: start() 
-    PinpointStarter -> IdValidator: 1.getAgentId() ->  pinpoint.agentId \ngetApplicationName -> pinpoint.applicationName
-    activate IdValidator 
-    IdValidator -->> PinpointStarter
-    deactivate IdValidator 
-    
-    PinpointStarter -> AgentDirBaseClassPathResolver: \t\t2.resolvePlugins() -> ${agentDir}/plugin/*.jar 
-    activate AgentDirBaseClassPathResolver
-    AgentDirBaseClassPathResolver -->>  PinpointStarter 
-    deactivate AgentDirBaseClassPathResolver
-    
-    PinpointStarter -> DefaultTraceMetadataLoaderService: \t\t\t\t3.1.<<create>> -> Load Plugins meta by SPI: com.navercorp.pinpoint.common.trace.TraceMetadataProvider
-    activate DefaultTraceMetadataLoaderService
-    DefaultTraceMetadataLoaderService -->> PinpointStarter
-    deactivate DefaultTraceMetadataLoaderService
-    
-    PinpointStarter -> DefaultServiceTypeRegistryService: \t\t\t\t\t\t3.2.<<create>> -> ServiceTypeRegistry
-    activate DefaultServiceTypeRegistryService
-    DefaultServiceTypeRegistryService -->> PinpointStarter
-    deactivate DefaultServiceTypeRegistryService
+![PinpointStarter.start](https://run-zheng.github.io/PictureBed/pinpoint1.6.3-agent-src-analysis/PinpointStarter.start.svg)
 
-    
-    PinpointStarter -> DefaultAnnotationKeyRegistryService: \t\t\t\t\t\t\t\t3.3.<<create>> -> AnnotationKeyRegistry
-    activate DefaultAnnotationKeyRegistryService
-    DefaultAnnotationKeyRegistryService -->> PinpointStarter
-    deactivate DefaultAnnotationKeyRegistryService
-   
-    PinpointStarter -> PinpointStarter: getConfigPath() => \n\t4.1.configPath: ${agentDir}/pinpoint.config 
-    PinpointStarter -> DefaultProfilerConfig: \t\t\t\t\t\t\t\t\t\t4.2.load(configPath)
-    activate DefaultProfilerConfig
-    DefaultProfilerConfig -->> PinpointStarter 
-    deactivate DefaultProfilerConfig
-
-    
-    PinpointStarter -> PinpointStarter: 5.1.resolveLib() => ${agentDir}/lib  
-    PinpointStarter -> AgentClassLoader: \t\t\t\t\t\t\t\t\t\t\t\t<<create>> 
-    activate AgentClassLoader
-    AgentClassLoader -->> PinpointStarter 
-    deactivate AgentClassLoader
-    
-    PinpointStarter -> PinpointStarter: 5.2.getBootClass => DefaultAgent.class\ncreateAgentOption => DefaultAgentOption 
-    PinpointStarter -> AgentClassLoader: \t\t\t\t\t\t\t\t\t\t\t\t\t\t6.boot(option) => DefaultAgent   option->DefaultAgentOption  
-    activate AgentClassLoader
-        AgentClassLoader -> DefaultAgent:  Constructor.newInstance(agentOption) \n<- ContextClassLoaderExecuteTemplate.execute|PinpointURLClassLoader
-        activate DefaultAgent
-        DefaultAgent -->> AgentClassLoader 
-        deactivate DefaultAgent
-    AgentClassLoader -->> PinpointStarter: \t\t\t\t\t\t\t\t\t\t\t\t\t\tDefaultAgent  
-    deactivate AgentClassLoader
-
-    PinpointStarter -> DefaultAgent: \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t7.start()
-    activate DefaultAgent
-    DefaultAgent -->> PinpointStarter
-    deactivate DefaultAgent
-    
-PinpointStarter -> PinpointStarter: 8.registerShutdownHook(pinpointAgent)\n    pinpointAgent -> DefaultAgent
-deactivate PinpointStarter
-@enduml 
-```
 
 ######  pinpoint依赖的第三方包隔离(不重要，可跳过) 
 
@@ -189,12 +111,30 @@ deactivate PinpointStarter
 
 `onLoadClass(name)`做了类判断，确定是否由该类加载器加载。 实际判断是由`ProfilerLibClass`的`PINPOINT_PROFILER_CLASS`预先设定的包确定的，这些包就是${agentDir}/lib下，pinpoint依赖的第三方jar。
  
+ 
+ #### DefaultAgent的初始化  
+ 
+ ![DefaultAgent.new](https://run-zheng.github.io/PictureBed/pinpoint1.6.3-agent-src-analysis/DefaultAgent.new.png)
+ 
+ 1、DefaultAgent构造方法先创建一个InterceptorRegistryBinder的实现DefaultInterceptorRegistryBinder，DefaultInterceptorRegistryBinder创建InterceptorRegistryAdaptor的实现DefaultInterceptorRegistryAdaptor，用来后续字节码插桩注册拦截器； 
+ 2、创建Slf4jLoggerBinder，bindPLoggerFactory绑定和初始化PLoggerFactory
+ 3、调用InterceptorRegistryBinder的bind方法，绑定DefaultInterceptorRegistryAdaptor
+ 4、以上都不是重点内容，重点在newApplicationContext，这里创建ApplicationContext的实现DefaultApplicationContext对象，一系列对象都在该类的构造方法汇总初始化， 包括google guice的ioc容器，各种provider，数据发送者等， ApplicationContext提供以下接口，接下来再看看DefaultApplicationContext的初始化
+ ```java
+public interface ApplicationContext {
+    ProfilerConfig getProfilerConfig();  //配置信息
+    TraceContext getTraceContext(); //trace上下文
+    InstrumentEngine getInstrumentEngine(); //获取字节码插桩引擎
+    //获取动态重转化触发器，该类用来对已经加载的类重新进行转换处理
+    DynamicTransformTrigger getDynamicTransformTrigger(); 
+    //获取类转化分发器, 被加入到Instrumentation的类插桩统一入口, 
+    ClassFileTransformerDispatcher getClassFileTransformerDispatcher();
+    AgentInformation getAgentInformation(); //获取Agent信息
+    void start();  //启动发送者和监控器
+    void close();  //关闭发送者和监控器
+}
+```
+ 
  #### DefaultApplicationContext--agent的真正启动过程 
 
-```puml
-@startuml 
 
-
-
-@enduml 
-```
